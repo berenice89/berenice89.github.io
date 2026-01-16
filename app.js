@@ -124,5 +124,9 @@ const RegistrarDashboard = () => {
   );
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<RegistrarDashboard />);
+
+const rootEl = document.getElementById("root");
+ReactDOM.render(<RegistrarDashboard />, rootEl);
+
+
+
