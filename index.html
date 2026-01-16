@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>6 Dashboard Registrars</title>
+  <title>Dashboard Registrars</title>
 
   <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,16 +29,29 @@
     async function loadWithFallback(primary, fallback, label) {
       try {
         await loadScript(primary);
-        console.log(`[OK] ${label} via primary`, primary);
+        console.log(`[OK] ${label} (primary)`);
       } catch (e) {
-        console.warn(`[WARN] ${label} primary failed, trying fallback…`, primary);
+        console.warn(`[WARN] ${label} primary failed -> fallback`);
         await loadScript(fallback);
-        console.log(`[OK] ${label} via fallback`, fallback);
+        console.log(`[OK] ${label} (fallback)`);
       }
     }
 
+    async function loadAndRunAppJsx(appUrl) {
+      const res = await fetch(appUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Impossible de charger ${appUrl} (${res.status})`);
+      const source = await res.text();
+
+      const compiled = Babel.transform(source, {
+        presets: ["react"]
+      }).code;
+
+      // Exécute le code compilé dans le contexte global
+      (0, eval)(compiled);
+    }
+
     (async () => {
-      // React 18
+      // React + ReactDOM (fallback CDN)
       await loadWithFallback(
         "https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js",
         "https://unpkg.com/react@18/umd/react.development.js",
@@ -71,12 +84,13 @@
         "Recharts"
       );
 
-      // Une fois tout charge, on charge app.js (JSX via Babel)
-      const app = document.createElement("script");
-      app.type = "text/babel";
-      app.src = "app.js";
-      document.body.appendChild(app);
-    })();
+      // Lance app.js (JSX) via Babel
+      await loadAndRunAppJsx("app.js");
+    })().catch((err) => {
+      console.error(err);
+      document.getElementById("root").innerHTML =
+        '<div style="padding:16px;font-family:system-ui;">Erreur au chargement. Ouvre la console (F12) pour voir le détail.</div>';
+    });
   </script>
 </head>
 
