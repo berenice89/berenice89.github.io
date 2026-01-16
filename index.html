@@ -3,47 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>5 Dashboard Registrars</title>
+  <title>6 Dashboard Registrars</title>
 
-  <!-- ========================= -->
-  <!-- React 18 (UMD) -->
-  <!-- ========================= -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-
-  <!-- ========================= -->
-  <!-- Dépendances Recharts -->
-  <!-- ========================= -->
-  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-  <script src="https://unpkg.com/react-is@18/umd/react-is.development.js"></script>
-
-  <!-- ========================= -->
-  <!-- Recharts (UMD compatible React 18) -->
-  <!-- ========================= -->
-  <script src="https://unpkg.com/recharts@2.4.3/umd/Recharts.min.js"></script>
-
-  <!-- ========================= -->
-  <!-- PapaParse -->
-  <!-- ========================= -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <!-- ========================= -->
   <!-- TailwindCSS -->
-  <!-- ========================= -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- ========================= -->
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
   <!-- Babel (pour JSX dans app.js) -->
-  <!-- ========================= -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+
+  <script>
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = src;
+        s.async = false; // garde l'ordre
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function loadWithFallback(primary, fallback, label) {
+      try {
+        await loadScript(primary);
+        console.log(`[OK] ${label} via primary`, primary);
+      } catch (e) {
+        console.warn(`[WARN] ${label} primary failed, trying fallback…`, primary);
+        await loadScript(fallback);
+        console.log(`[OK] ${label} via fallback`, fallback);
+      }
+    }
+
+    (async () => {
+      // React 18
+      await loadWithFallback(
+        "https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js",
+        "https://unpkg.com/react@18/umd/react.development.js",
+        "React"
+      );
+
+      await loadWithFallback(
+        "https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js",
+        "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+        "ReactDOM"
+      );
+
+      // Dépendances Recharts
+      await loadWithFallback(
+        "https://cdn.jsdelivr.net/npm/prop-types@15.8.1/prop-types.min.js",
+        "https://unpkg.com/prop-types@15.8.1/prop-types.min.js",
+        "PropTypes"
+      );
+
+      await loadWithFallback(
+        "https://cdn.jsdelivr.net/npm/react-is@18/umd/react-is.development.js",
+        "https://unpkg.com/react-is@18/umd/react-is.development.js",
+        "react-is"
+      );
+
+      // Recharts
+      await loadWithFallback(
+        "https://cdn.jsdelivr.net/npm/recharts@2.4.3/umd/Recharts.min.js",
+        "https://unpkg.com/recharts@2.4.3/umd/Recharts.min.js",
+        "Recharts"
+      );
+
+      // Une fois tout charge, on charge app.js (JSX via Babel)
+      const app = document.createElement("script");
+      app.type = "text/babel";
+      app.src = "app.js";
+      document.body.appendChild(app);
+    })();
+  </script>
 </head>
 
 <body class="bg-gray-100">
   <div id="root"></div>
-
-  <!-- ========================= -->
-  <!-- App React -->
-  <!-- ========================= -->
-  <script type="text/babel" src="app.js"></script>
 </body>
 </html>
